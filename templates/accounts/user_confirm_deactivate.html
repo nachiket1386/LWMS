@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+
+{% block title %}{% if object.is_active %}Deactivate{% else %}Activate{% endif %} User - Tenant Auth RBAC{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-6 offset-md-3">
+        <div class="card">
+            <div class="card-header bg-warning">
+                <h4 class="mb-0">Confirm {% if object.is_active %}Deactivation{% else %}Activation{% endif %}</h4>
+            </div>
+            <div class="card-body">
+                <p>Are you sure you want to {% if object.is_active %}deactivate{% else %}activate{% endif %} the user <strong>{{ object.username }}</strong>?</p>
+                
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <a href="{% url 'accounts:user_list' %}" class="btn btn-secondary">Cancel</a>
+                        <button type="submit" class="btn btn-{% if object.is_active %}warning{% else %}success{% endif %}">
+                            {% if object.is_active %}Deactivate{% else %}Activate{% endif %}
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

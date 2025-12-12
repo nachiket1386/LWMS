@@ -1,0 +1,142 @@
+{% extends 'base.html' %}
+
+{% block title %}User Management - Tenant Auth RBAC{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <h2>User Management</h2>
+        
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">Search & Filter</h5>
+            </div>
+            <div class="card-body">
+                <form method="get" class="row g-3">
+                    <div class="col-md-3">
+                        <input type="text" name="search" class="form-control" placeholder="Search..." value="{{ search_query }}">
+                    </div>
+                    <div class="col-md-2">
+                        <select name="role" class="form-select">
+                            <option value="">All Roles</option>
+                            {% for value, label in roles %}
+                            <option value="{{ value }}" {% if value == role_filter %}selected{% endif %}>{{ label }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    {% if user.is_root %}
+                    <div class="col-md-2">
+                        <select name="company" class="form-select">
+                            <option value="">All Companies</option>
+                            {% for company in companies %}
+                            <option value="{{ company.id }}" {% if company.id|stringformat:"s" == company_filter %}selected{% endif %}>{{ company.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    {% endif %}
+                    <div class="col-md-2">
+                        <select name="status" class="form-select">
+                            <option value="">All Status</option>
+                            <option value="active" {% if status_filter == 'active' %}selected{% endif %}>Active</option>
+                            <option value="inactive" {% if status_filter == 'inactive' %}selected{% endif %}>Inactive</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <button type="submit" class="btn btn-primary">Filter</button>
+                        <a href="{% url 'accounts:user_list' %}" class="btn btn-secondary">Clear</a>
+                        <a href="{% url 'accounts:user_create' %}" class="btn btn-success">
+                            <i class="bi bi-person-plus"></i> Create User
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Username</th>
+                                <th>Email</th>
+                                <th>Role</th>
+                                <th>Company</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for user_obj in users %}
+                            <tr>
+                                <td>{{ user_obj.username }}</td>
+                                <td>{{ user_obj.email }}</td>
+                                <td><span class="badge bg-info">{{ user_obj.get_role_display }}</span></td>
+                                <td>{{ user_obj.company.name|default:"-" }}</td>
+                                <td>
+                                    {% if user_obj.is_active %}
+                                    <span class="badge bg-success">Active</span>
+                                    {% else %}
+                                    <span class="badge bg-danger">Inactive</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <div class="btn-group btn-group-sm" role="group">
+                                        <a href="{% url 'accounts:user_edit' user_obj.pk %}" class="btn btn-primary" title="Edit">
+                                            <i class="bi bi-pencil"></i>
+                                        </a>
+                                        <a href="{% url 'accounts:user_deactivate' user_obj.pk %}" class="btn btn-warning" title="Deactivate/Activate">
+                                            <i class="bi bi-toggle-off"></i>
+                                        </a>
+                                        <a href="{% url 'accounts:user_reset_password' user_obj.pk %}" class="btn btn-info" title="Reset Password">
+                                            <i class="bi bi-key"></i>
+                                        </a>
+                                        {% if user.is_root and not user_obj.is_root %}
+                                        <a href="{% url 'accounts:impersonate_user' user_obj.pk %}" class="btn btn-secondary" title="Impersonate">
+                                            <i class="bi bi-person-badge"></i>
+                                        </a>
+                                        {% endif %}
+                                    </div>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="6" class="text-center">No users found.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                {% if is_paginated %}
+                <nav aria-label="Page navigation">
+                    <ul class="pagination justify-content-center">
+                        {% if page_obj.has_previous %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page=1{% if search_query %}&search={{ search_query }}{% endif %}">First</a>
+                        </li>
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}">Previous</a>
+                        </li>
+                        {% endif %}
+
+                        <li class="page-item active">
+                            <span class="page-link">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+                        </li>
+
+                        {% if page_obj.has_next %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}">Next</a>
+                        </li>
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}{% if search_query %}&search={{ search_query }}{% endif %}">Last</a>
+                        </li>
+                        {% endif %}
+                    </ul>
+                </nav>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
