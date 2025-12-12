@@ -1,0 +1,74 @@
+{% extends 'base.html' %}
+
+{% block title %}Home - AMS Core{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <h1 class="mb-4">Welcome to AMS Core</h1>
+        
+        {% if current_company %}
+            <div class="alert alert-info">
+                <p>You are currently viewing: <strong>{{ current_company.name }}</strong></p>
+            </div>
+            
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">Assets</h5>
+                            <p class="card-text">Manage your company assets</p>
+                            <a href="#" class="btn btn-primary">View Assets</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">Reports</h5>
+                            <p class="card-text">Generate and view reports</p>
+                            <a href="#" class="btn btn-primary">View Reports</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">Settings</h5>
+                            <p class="card-text">Manage company settings</p>
+                            <a href="#" class="btn btn-primary">View Settings</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% else %}
+            <div class="alert alert-warning">
+                <p>Please select a company or login to get started.</p>
+            </div>
+            
+            {% if companies %}
+                <div class="card">
+                    <div class="card-header">
+                        <h5>Available Companies</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            {% for company in companies %}
+                                <div class="col-md-4 mb-3">
+                                    <div class="card">
+                                        <div class="card-body">
+                                            <h6 class="card-title">{{ company.name }}</h6>
+                                            <p class="card-text text-muted small">{{ company.description }}</p>
+                                            <a href="#" class="btn btn-sm btn-outline-primary">Select</a>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

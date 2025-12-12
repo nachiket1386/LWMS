@@ -1,0 +1,52 @@
+[
+  {
+    "model": "core.company",
+    "pk": 1,
+    "fields": {
+      "name": "Acme Corporation",
+      "slug": "acme",
+      "description": "Leading provider of industrial products",
+      "is_active": true
+    }
+  },
+  {
+    "model": "core.company",
+    "pk": 2,
+    "fields": {
+      "name": "Global Tech Solutions",
+      "slug": "global-tech",
+      "description": "Information technology and consulting services",
+      "is_active": true
+    }
+  },
+  {
+    "model": "core.company",
+    "pk": 3,
+    "fields": {
+      "name": "Stellar Manufacturing",
+      "slug": "stellar",
+      "description": "Advanced manufacturing and engineering",
+      "is_active": true
+    }
+  },
+  {
+    "model": "core.company",
+    "pk": 4,
+    "fields": {
+      "name": "CloudWorks Inc",
+      "slug": "cloudworks",
+      "description": "Cloud infrastructure and managed services",
+      "is_active": true
+    }
+  },
+  {
+    "model": "core.company",
+    "pk": 5,
+    "fields": {
+      "name": "DataFlow Analytics",
+      "slug": "dataflow",
+      "description": "Big data and analytics platform",
+      "is_active": true
+    }
+  }
+]
