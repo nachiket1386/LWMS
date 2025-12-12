@@ -1,0 +1,86 @@
+{% extends 'base.html' %}
+
+{% block title %}ManDays by Project{% endblock %}
+
+{% block content %}
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{% url 'attendance:dashboard' %}">Dashboard</a></li>
+        <li class="breadcrumb-item active">ManDays by Project</li>
+    </ol>
+</nav>
+
+<div class="row mb-4">
+    <div class="col-12">
+        <h1>ManDays Summary by Project</h1>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-6 mb-3">
+        <div class="card bg-info text-white">
+            <div class="card-body">
+                <h5 class="card-title">Total Allocated</h5>
+                <p class="card-text display-6">{{ total_allocated|floatformat:1 }} days</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6 mb-3">
+        <div class="card bg-success text-white">
+            <div class="card-body">
+                <h5 class="card-title">Total Utilized</h5>
+                <p class="card-text display-6">{{ total_utilized|floatformat:1 }} days</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <h5 class="mb-0">Project Summary</h5>
+    </div>
+    <div class="table-responsive">
+        <table class="table table-hover mb-0">
+            <thead class="table-dark">
+                <tr>
+                    <th>Project</th>
+                    <th>Records</th>
+                    <th>Total Allocated</th>
+                    <th>Total Utilized</th>
+                    <th>Remaining</th>
+                    <th>Utilization %</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for project in summary %}
+                {% widthratio project.total_utilized project.total_allocated 100 as util_pct %}
+                <tr>
+                    <td><strong>{{ project.project }}</strong></td>
+                    <td>{{ project.count }}</td>
+                    <td>{{ project.total_allocated|floatformat:2 }}</td>
+                    <td>{{ project.total_utilized|floatformat:2 }}</td>
+                    <td>{{ remaining|floatformat:2 }}</td>
+                    <td>
+                        <div class="progress" style="min-height: 20px;">
+                            <div class="progress-bar" role="progressbar" style="width: {{ util_pct|floatformat:0 }}%;" aria-valuenow="{{ util_pct|floatformat:0 }}" aria-valuemin="0" aria-valuemax="100">
+                                {{ util_pct|floatformat:0 }}%
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="6" class="text-center text-muted py-4">No records found</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="mt-4">
+    <a href="{% url 'attendance:mandays_list' %}" class="btn btn-secondary">
+        <i class="bi bi-arrow-left"></i> Back to ManDays
+    </a>
+</div>
+{% endblock %}

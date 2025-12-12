@@ -1,0 +1,176 @@
+{% extends 'base.html' %}
+
+{% block title %}Attendance Records{% endblock %}
+
+{% block extra_css %}
+<style>
+    .filter-card {
+        background-color: #f8f9fa;
+        border-left: 4px solid #007bff;
+        margin-bottom: 2rem;
+    }
+    .table-responsive {
+        margin-bottom: 2rem;
+    }
+    @media (max-width: 768px) {
+        .table {
+            font-size: 0.9rem;
+        }
+        .btn-group-sm .btn {
+            padding: 0.25rem 0.5rem;
+            font-size: 0.75rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{% url 'attendance:dashboard' %}">Dashboard</a></li>
+        <li class="breadcrumb-item active">Attendance</li>
+    </ol>
+</nav>
+
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h1>Attendance Records</h1>
+            <div class="btn-group" role="group">
+                <a href="{% url 'attendance:attendance_create' %}" class="btn btn-primary">
+                    <i class="bi bi-plus"></i> Create Record
+                </a>
+                <a href="{% url 'attendance:attendance_export' %}?format=csv" class="btn btn-secondary">
+                    <i class="bi bi-download"></i> Export CSV
+                </a>
+                <a href="{% url 'attendance:attendance_export' %}?format=excel" class="btn btn-secondary">
+                    <i class="bi bi-file-earmark-spreadsheet"></i> Export Excel
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card filter-card">
+    <div class="card-header">
+        <h5 class="mb-0"><i class="bi bi-funnel"></i> Filter Records</h5>
+    </div>
+    <div class="card-body">
+        <form method="get" class="row g-3">
+            <div class="col-md-3">
+                {{ filter_form.date_from }}
+                <label class="form-label">From Date</label>
+            </div>
+            <div class="col-md-3">
+                {{ filter_form.date_to }}
+                <label class="form-label">To Date</label>
+            </div>
+            <div class="col-md-3">
+                {{ filter_form.employee }}
+                <label class="form-label">Employee</label>
+            </div>
+            <div class="col-md-3">
+                {{ filter_form.status }}
+            </div>
+            <div class="col-md-12">
+                {{ filter_form.cost_center }}
+            </div>
+            <div class="col-12">
+                <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-search"></i> Apply Filters
+                </button>
+                <a href="{% url 'attendance:attendance_list' %}" class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-clockwise"></i> Clear
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <h5 class="mb-0">{{ total_records }} Records Found</h5>
+    </div>
+    <div class="table-responsive">
+        <table class="table table-hover mb-0">
+            <thead class="table-dark">
+                <tr>
+                    <th>Date</th>
+                    <th>Employee</th>
+                    <th>Status</th>
+                    <th>Cost Center</th>
+                    <th>Hours Worked</th>
+                    <th>Approved</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for record in records %}
+                <tr>
+                    <td>{{ record.attendance_date }}</td>
+                    <td>{{ record.employee.username }}</td>
+                    <td>
+                        <span class="badge bg-{% if record.status == 'PRESENT' %}success{% elif record.status == 'ABSENT' %}danger{% elif record.status == 'LEAVE' %}info{% else %}warning{% endif %}">
+                            {{ record.get_status_display }}
+                        </span>
+                    </td>
+                    <td>{{ record.cost_center|default:'-' }}</td>
+                    <td>{{ record.hours_worked }}</td>
+                    <td>
+                        {% if record.supervisor_approved %}
+                        <span class="badge bg-success"><i class="bi bi-check"></i> Yes</span>
+                        {% else %}
+                        <span class="badge bg-warning"><i class="bi bi-exclamation"></i> Pending</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <div class="btn-group btn-group-sm" role="group">
+                            <a href="{% url 'attendance:attendance_edit' record.pk %}" class="btn btn-outline-primary">
+                                <i class="bi bi-pencil"></i> Edit
+                            </a>
+                            <a href="{% url 'attendance:attendance_delete' record.pk %}" class="btn btn-outline-danger">
+                                <i class="bi bi-trash"></i> Delete
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="7" class="text-center text-muted py-4">No records found</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{% if total_pages > 1 %}
+<nav aria-label="Page navigation" class="mt-4">
+    <ul class="pagination justify-content-center">
+        {% if has_previous %}
+        <li class="page-item">
+            <a class="page-link" href="?page=1{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">First</a>
+        </li>
+        <li class="page-item">
+            <a class="page-link" href="?page={{ previous_page }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">Previous</a>
+        </li>
+        {% endif %}
+        
+        {% for page_num in request|add:total_pages|make_list %}
+        <li class="page-item {% if page_num == current_page %}active{% endif %}">
+            <a class="page-link" href="?page={{ page_num }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">{{ page_num }}</a>
+        </li>
+        {% endfor %}
+        
+        {% if has_next %}
+        <li class="page-item">
+            <a class="page-link" href="?page={{ next_page }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">Next</a>
+        </li>
+        <li class="page-item">
+            <a class="page-link" href="?page={{ total_pages }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">Last</a>
+        </li>
+        {% endif %}
+    </ul>
+</nav>
+{% endif %}
+{% endblock %}

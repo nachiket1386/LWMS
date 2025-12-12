@@ -1,0 +1,86 @@
+{% extends 'base.html' %}
+
+{% block title %}Overtime by Employee{% endblock %}
+
+{% block content %}
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{% url 'attendance:dashboard' %}">Dashboard</a></li>
+        <li class="breadcrumb-item active">Overtime by Employee</li>
+    </ol>
+</nav>
+
+<div class="row mb-4">
+    <div class="col-12">
+        <h1>Overtime Summary by Employee</h1>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-6 mb-3">
+        <div class="card bg-warning text-dark">
+            <div class="card-body">
+                <h5 class="card-title">Total Hours</h5>
+                <p class="card-text display-6">{{ total_hours|floatformat:1 }}h</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6 mb-3">
+        <div class="card bg-success text-white">
+            <div class="card-body">
+                <h5 class="card-title">Approved Hours</h5>
+                <p class="card-text display-6">{{ approved_hours|floatformat:1 }}h</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <h5 class="mb-0">Employee Summary</h5>
+    </div>
+    <div class="table-responsive">
+        <table class="table table-hover mb-0">
+            <thead class="table-dark">
+                <tr>
+                    <th>Employee</th>
+                    <th>Records</th>
+                    <th>Total Hours</th>
+                    <th>Approved Hours</th>
+                    <th>Pending Hours</th>
+                    <th>Approval %</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for emp in summary %}
+                {% widthratio emp.approved_hours emp.total_hours 100 as approval_pct %}
+                <tr>
+                    <td><strong>{{ emp.employee__username }}</strong></td>
+                    <td>{{ emp.count }}</td>
+                    <td>{{ emp.total_hours|floatformat:1 }}h</td>
+                    <td><span class="badge bg-success">{{ emp.approved_hours|floatformat:1 }}h</span></td>
+                    <td><span class="badge bg-warning">0h</span></td>
+                    <td>
+                        <div class="progress" style="min-height: 20px;">
+                            <div class="progress-bar bg-success" role="progressbar" style="width: {{ approval_pct }}%;" aria-valuenow="{{ approval_pct }}" aria-valuemin="0" aria-valuemax="100">
+                                {{ approval_pct }}%
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="6" class="text-center text-muted py-4">No records found</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="mt-4">
+    <a href="{% url 'attendance:overtime_list' %}" class="btn btn-secondary">
+        <i class="bi bi-arrow-left"></i> Back to Overtime
+    </a>
+</div>
+{% endblock %}

@@ -1,0 +1,74 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{% url 'attendance:dashboard' %}">Dashboard</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'attendance:overtime_list' %}">Overtime</a></li>
+        <li class="breadcrumb-item active">{{ title }}</li>
+    </ol>
+</nav>
+
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header bg-dark text-white">
+                <h5 class="mb-0">{{ title }}</h5>
+            </div>
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+                    
+                    {% if record %}
+                    <input type="hidden" name="version" value="{{ record.version }}">
+                    {% endif %}
+                    
+                    {% if form.non_field_errors %}
+                    <div class="alert alert-danger">{{ form.non_field_errors }}</div>
+                    {% endif %}
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">{{ form.employee.label }}</label>
+                            {{ form.employee }}
+                            {% if form.employee.errors %}<div class="invalid-feedback d-block">{{ form.employee.errors }}</div>{% endif %}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">{{ form.overtime_date.label }}</label>
+                            {{ form.overtime_date }}
+                            {% if form.overtime_date.errors %}<div class="invalid-feedback d-block">{{ form.overtime_date.errors }}</div>{% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">{{ form.hours.label }}</label>
+                        {{ form.hours }}
+                        {% if form.hours.errors %}<div class="invalid-feedback d-block">{{ form.hours.errors }}</div>{% endif %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">{{ form.reason.label }}</label>
+                        {{ form.reason }}
+                        {% if form.reason.errors %}<div class="invalid-feedback d-block">{{ form.reason.errors }}</div>{% endif %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">{{ form.supervisor_remarks.label }}</label>
+                        {{ form.supervisor_remarks }}
+                        {% if form.supervisor_remarks.errors %}<div class="invalid-feedback d-block">{{ form.supervisor_remarks.errors }}</div>{% endif %}
+                    </div>
+                    
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <a href="{% url 'attendance:overtime_list' %}" class="btn btn-secondary">Cancel</a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-check"></i> {% if record %}Update{% else %}Create{% endif %}
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
