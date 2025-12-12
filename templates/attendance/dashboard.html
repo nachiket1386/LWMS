@@ -1,0 +1,223 @@
+{% extends 'base.html' %}
+
+{% block title %}Attendance Dashboard{% endblock %}
+
+{% block extra_css %}
+<style>
+    .dashboard-card {
+        border-left: 4px solid #007bff;
+        min-height: 150px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .dashboard-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+    .dashboard-card.blue { border-left-color: #4472C4; }
+    .dashboard-card.green { border-left-color: #70AD47; }
+    .dashboard-card.orange { border-left-color: #FFC000; }
+    .dashboard-card.red { border-left-color: #C55A11; }
+    
+    .card-number {
+        font-size: 2.5rem;
+        font-weight: bold;
+        color: #333;
+    }
+    .card-label {
+        font-size: 0.9rem;
+        color: #666;
+        margin-top: 0.5rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <h1 class="mb-4"><i class="bi bi-graph-up"></i> Attendance Dashboard</h1>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-6 col-lg-3 mb-3">
+        <div class="card dashboard-card blue">
+            <div class="card-body">
+                <div class="card-number">{{ total_attendance }}</div>
+                <div class="card-label">Total Attendance Records</div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6 col-lg-3 mb-3">
+        <div class="card dashboard-card green">
+            <div class="card-body">
+                <div class="card-number">{{ present_today }}</div>
+                <div class="card-label">Present Today</div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6 col-lg-3 mb-3">
+        <div class="card dashboard-card orange">
+            <div class="card-body">
+                <div class="card-number">{{ pending_approvals }}</div>
+                <div class="card-label">Pending Approvals</div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6 col-lg-3 mb-3">
+        <div class="card dashboard-card red">
+            <div class="card-body">
+                <div class="card-number">{{ overtime_pending }}</div>
+                <div class="card-label">Pending Overtime</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-6 mb-3">
+        <div class="card dashboard-card blue">
+            <div class="card-body">
+                <div class="card-number">{{ mandays_total|floatformat:1 }}</div>
+                <div class="card-label">Total ManDays Allocated</div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6 mb-3">
+        <div class="card dashboard-card green">
+            <div class="card-body">
+                <div class="card-number">{{ mandays_utilized|floatformat:1 }}</div>
+                <div class="card-label">Total ManDays Utilized</div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6 mb-3">
+        <div class="card dashboard-card orange">
+            <div class="card-body">
+                <div class="card-number">{{ overtime_hours|floatformat:1 }}h</div>
+                <div class="card-label">Total Overtime Hours</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-lg-4 mb-3">
+        <div class="card">
+            <div class="card-header bg-dark text-white">
+                <h5 class="mb-0"><i class="bi bi-file-earmark-arrow-up"></i> Latest Uploads</h5>
+            </div>
+            <div class="card-body p-0">
+                <div class="list-group list-group-flush">
+                    {% if latest_uploads %}
+                        {% for upload in latest_uploads %}
+                        <div class="list-group-item">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div>
+                                    <p class="mb-1 fw-bold">{{ upload.file_name }}</p>
+                                    <small class="text-muted">{{ upload.created_at|date:'M d, Y H:i' }}</small>
+                                </div>
+                                <span class="badge bg-{% if upload.status == 'COMPLETED' %}success{% elif upload.status == 'FAILED' %}danger{% elif upload.status == 'PROCESSING' %}warning{% else %}secondary{% endif %}">
+                                    {{ upload.get_status_display }}
+                                </span>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                    <div class="list-group-item text-muted text-center py-4">
+                        No uploads yet
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-4 mb-3">
+        <div class="card">
+            <div class="card-header bg-dark text-white">
+                <h5 class="mb-0"><i class="bi bi-clock"></i> Recent Overtime</h5>
+            </div>
+            <div class="card-body p-0">
+                <div class="list-group list-group-flush">
+                    {% if recent_overtime %}
+                        {% for record in recent_overtime %}
+                        <div class="list-group-item">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div>
+                                    <p class="mb-1 fw-bold">{{ record.employee.username }}</p>
+                                    <small class="text-muted">{{ record.overtime_date }}</small>
+                                </div>
+                                <span class="badge bg-warning">{{ record.hours }}h</span>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                    <div class="list-group-item text-muted text-center py-4">
+                        No overtime records
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-4 mb-3">
+        <div class="card">
+            <div class="card-header bg-dark text-white">
+                <h5 class="mb-0"><i class="bi bi-calendar-check"></i> Recent ManDays</h5>
+            </div>
+            <div class="card-body p-0">
+                <div class="list-group list-group-flush">
+                    {% if recent_mandays %}
+                        {% for record in recent_mandays %}
+                        <div class="list-group-item">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div>
+                                    <p class="mb-1 fw-bold">{{ record.employee.username }} - {{ record.project|truncatewords:3 }}</p>
+                                    <small class="text-muted">{{ record.mandays_date }}</small>
+                                </div>
+                                <span class="badge bg-info">{{ record.days_allocated }}</span>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                    <div class="list-group-item text-muted text-center py-4">
+                        No mandays records
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12 mb-3">
+        <div class="btn-group" role="group">
+            <a href="{% url 'attendance:attendance_list' %}" class="btn btn-primary">
+                <i class="bi bi-list"></i> View Attendance
+            </a>
+            <a href="{% url 'attendance:mandays_list' %}" class="btn btn-success">
+                <i class="bi bi-calendar-event"></i> View ManDays
+            </a>
+            <a href="{% url 'attendance:overtime_list' %}" class="btn btn-warning">
+                <i class="bi bi-clock"></i> View Overtime
+            </a>
+            <a href="{% url 'attendance:mandays_by_project' %}" class="btn btn-info">
+                <i class="bi bi-pie-chart"></i> ManDays by Project
+            </a>
+            <a href="{% url 'attendance:overtime_by_employee' %}" class="btn btn-secondary">
+                <i class="bi bi-graph-up"></i> Overtime by Employee
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

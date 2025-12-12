@@ -1,0 +1,80 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{% url 'attendance:dashboard' %}">Dashboard</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'attendance:mandays_list' %}">ManDays</a></li>
+        <li class="breadcrumb-item active">{{ title }}</li>
+    </ol>
+</nav>
+
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header bg-dark text-white">
+                <h5 class="mb-0">{{ title }}</h5>
+            </div>
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+                    
+                    {% if record %}
+                    <input type="hidden" name="version" value="{{ record.version }}">
+                    {% endif %}
+                    
+                    {% if form.non_field_errors %}
+                    <div class="alert alert-danger">{{ form.non_field_errors }}</div>
+                    {% endif %}
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">{{ form.employee.label }}</label>
+                            {{ form.employee }}
+                            {% if form.employee.errors %}<div class="invalid-feedback d-block">{{ form.employee.errors }}</div>{% endif %}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">{{ form.project.label }}</label>
+                            {{ form.project }}
+                            {% if form.project.errors %}<div class="invalid-feedback d-block">{{ form.project.errors }}</div>{% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">{{ form.mandays_date.label }}</label>
+                            {{ form.mandays_date }}
+                            {% if form.mandays_date.errors %}<div class="invalid-feedback d-block">{{ form.mandays_date.errors }}</div>{% endif %}
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <label class="form-label">{{ form.days_allocated.label }}</label>
+                            {{ form.days_allocated }}
+                            {% if form.days_allocated.errors %}<div class="invalid-feedback d-block">{{ form.days_allocated.errors }}</div>{% endif %}
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <label class="form-label">{{ form.days_utilized.label }}</label>
+                            {{ form.days_utilized }}
+                            {% if form.days_utilized.errors %}<div class="invalid-feedback d-block">{{ form.days_utilized.errors }}</div>{% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">{{ form.supervisor_remarks.label }}</label>
+                        {{ form.supervisor_remarks }}
+                        {% if form.supervisor_remarks.errors %}<div class="invalid-feedback d-block">{{ form.supervisor_remarks.errors }}</div>{% endif %}
+                    </div>
+                    
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <a href="{% url 'attendance:mandays_list' %}" class="btn btn-secondary">Cancel</a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-check"></i> {% if record %}Update{% else %}Create{% endif %}
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

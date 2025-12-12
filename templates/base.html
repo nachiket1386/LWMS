@@ -21,6 +21,17 @@
                     <li class="nav-item">
                         <a class="nav-link" href="{% url 'accounts:dashboard' %}">Dashboard</a>
                     </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="attendanceDropdown" role="button" data-bs-toggle="dropdown">
+                            <i class="bi bi-calendar-check"></i> Attendance
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="{% url 'attendance:dashboard' %}">Dashboard</a></li>
+                            <li><a class="dropdown-item" href="{% url 'attendance:attendance_list' %}">Attendance</a></li>
+                            <li><a class="dropdown-item" href="{% url 'attendance:mandays_list' %}">ManDays</a></li>
+                            <li><a class="dropdown-item" href="{% url 'attendance:overtime_list' %}">Overtime</a></li>
+                        </ul>
+                    </li>
                     {% if user.is_admin or user.is_root %}
                     <li class="nav-item">
                         <a class="nav-link" href="{% url 'accounts:user_list' %}">Users</a>
